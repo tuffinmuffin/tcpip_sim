@@ -57,6 +57,11 @@ public:
     {
     }
 
+    Interface& getLink(bool which) { return which ? interface0_ : interface1_;}
+    uint32_t getCost() {return cost_;};
+
+    friend std::ostream& operator<<( std::ostream &output, const Link &link);
+
 private:
     Interface &interface0_;
     Interface &interface1_;
@@ -75,7 +80,13 @@ public:
         interface.assignLink(link_);
     }
 
+    friend std::ostream& operator<<( std::ostream &output, const Interface &intf);
+
     shared_ptr<Link> getLink() { return link_;}
+
+    const string& getName() { return name_;}
+
+    Node& getParent() { return parent_; }
 
 protected:
     void assignLink(shared_ptr<Link> link) {
@@ -110,6 +121,18 @@ public:
         return *node_list_[name].get();
     }
 
+    friend std::ostream &operator<<( std::ostream &output, const Node &n) {
+        std::cout << "Node: " << n.name_ << std::endl;
+        for( auto &intf : n.node_list_) {
+            std::cout << "  Interface: " << intf.first << std::endl;
+            std::cout << "     " << *intf.second << std::endl;
+        }
+
+        return output;
+    }
+
+    const string& getName() { return name_; }
+
 private:
     string name_;
     map<string, shared_ptr<Interface>> node_list_;
@@ -118,6 +141,8 @@ private:
 
 class Graph
 {
+    static const int kNameIdx = 0;
+    static const int kNodeIdx = 1;
 public:
     Graph(string name): name_(name), nodes_()
     {
@@ -149,10 +174,22 @@ public:
         Node& node0 = getNode(nodeName0);
         Node& node1 = getNode(nodeName1);
         Interface& interface0 = node0.attachInterface(interfaceName0);
-        Interface& interface1 = node0.attachInterface(interfaceName1);
+        Interface& interface1 = node1.attachInterface(interfaceName1);
+        interface0.linkTo(interface1);
 
         return interface0.getLink();
     }
+
+    friend std::ostream &operator<<( std::ostream &output, const Graph &g) {
+        output << "Network: " << g.name_ << "Nodes " << g.nodes_.size() <<std::endl;
+        for( auto &node : g.nodes_) {
+            //std::cout << "  Node: " << node.first << std::endl;
+            output << *node.second << std::endl;
+        }
+
+        return output;
+    }
+    
 
 private:
     string name_;

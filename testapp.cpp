@@ -7,5 +7,6 @@ int main() {
     Graph myG(myStr);
 
     std::unique_ptr<Graph> simple = createSimple();
+    std::cout << *simple;
     return 0;
 }
